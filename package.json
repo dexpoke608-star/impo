@@ -8,6 +8,10 @@
     "dev:client": "cd client && npm run dev",
     "build": "cd client && npm install && npm run build && cd ../server && npm install",
     "start": "cd server && npm start",
-    "test": "cd server && npm test"
+    "test": "cd server && npm test",
+    "test:e2e": "node e2e/game-flow.test.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
   }
 }

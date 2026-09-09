@@ -1,6 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Poppins:wght@400;500;600;700&display=swap");
 
 :root {
+  /* Tells the browser this page already implements its own dark theme, so
+     Chrome/Android's "force dark mode for web contents" heuristic leaves
+     our colors alone instead of trying to auto-invert/adjust them (which
+     otherwise mangles plain text colors while leaving gradients alone). */
+  color-scheme: dark;
+
   --bg-0: #0d0a1a;
   --bg-1: #161029;
   --surface: #1e1836;
@@ -65,6 +71,7 @@ button {
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  pointer-events: none;
   background: radial-gradient(ellipse at top, var(--bg-1), var(--bg-0) 70%);
 }
 
@@ -113,12 +120,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes rise {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  transform: translateZ(0);
 }
 
 .card {
@@ -272,14 +274,6 @@ input.text-input.code-input {
   border-radius: var(--radius-sm);
   font-size: 13px;
   text-align: center;
-  animation: shake 0.4s ease;
-}
-
-@keyframes shake {
-  10%, 90% { transform: translateX(-1px); }
-  20%, 80% { transform: translateX(2px); }
-  30%, 50%, 70% { transform: translateX(-4px); }
-  40%, 60% { transform: translateX(4px); }
 }
 
 .room-code-pill {
@@ -337,12 +331,6 @@ input.text-input.code-input {
   background: var(--surface-2);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
-  animation: pop 0.3s ease;
-}
-
-@keyframes pop {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
 }
 
 .avatar {
