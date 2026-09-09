@@ -1,0 +1,14 @@
+{
+  "name": "Imposter Party",
+  "short_name": "Imposter",
+  "description": "Find the imposter before they find you — a party game for friends.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0a1a",
+  "theme_color": "#0f0b1e",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

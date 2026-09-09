@@ -40,7 +40,7 @@ async function shot(page, name) {
   console.log("   h1 computed color:", titleColor);
   assert(titleColor !== "rgba(0, 0, 0, 0)" && titleColor !== "rgb(0, 0, 0)", "h1 text color isn't invisible/black");
 
-  const createBtn = pages[0].locator("button", { hasText: "Create Room" });
+  const createBtn = pages[0].locator("button.btn-primary");
   assert(await createBtn.isDisabled(), "Create Room button starts disabled with no name typed");
   await pages[0].fill("input.text-input", names[0]);
   assert(!(await createBtn.isDisabled()), "Create Room button enables once a name is typed");
@@ -61,7 +61,7 @@ async function shot(page, name) {
     const prefilled = await pages[i].locator("input.code-input").inputValue();
     assert(prefilled === roomCode, `${names[i]} sees the room code pre-filled`);
     await pages[i].fill('input.text-input:not(.code-input)', names[i]);
-    await pages[i].locator("button", { hasText: "Join Room" }).click();
+    await pages[i].locator("button.btn-primary").click();
     await pages[i].waitForSelector(".room-code-pill .code");
   }
   await pages[0].waitForFunction(() => document.querySelectorAll(".player-row").length === 5);

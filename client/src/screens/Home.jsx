@@ -22,36 +22,50 @@ export default function Home({ initialRoomCode, onCreate, onJoin }) {
 
       <div className="card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div className="tabs">
-          <div className={`tab ${mode === "create" ? "active" : ""}`} onClick={() => setMode("create")}>
+          <button type="button" className={`tab ${mode === "create" ? "active" : ""}`} onClick={() => setMode("create")}>
             Create Room
-          </div>
-          <div className={`tab ${mode === "join" ? "active" : ""}`} onClick={() => setMode("join")}>
+          </button>
+          <button type="button" className={`tab ${mode === "join" ? "active" : ""}`} onClick={() => setMode("join")}>
             Join Room
-          </div>
+          </button>
         </div>
 
         {mode === "join" && (
           <div>
-            <label className="field-label">Room Code</label>
+            <label className="field-label" htmlFor="room-code-input">Room Code</label>
             <input
+              id="room-code-input"
+              name="roomCode"
               className="text-input code-input"
               placeholder="ABCD"
               maxLength={4}
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+              autoComplete="off"
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck={false}
+              inputMode="text"
+              enterKeyHint="next"
             />
           </div>
         )}
 
         <div>
-          <label className="field-label">Your Name</label>
+          <label className="field-label" htmlFor="player-name-input">Your Name</label>
           <input
+            id="player-name-input"
+            name="playerName"
             className="text-input"
             placeholder="e.g. Nagendra"
             maxLength={24}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
+            autoComplete="off"
+            autoCapitalize="words"
+            autoCorrect="off"
+            enterKeyHint="done"
           />
         </div>
 

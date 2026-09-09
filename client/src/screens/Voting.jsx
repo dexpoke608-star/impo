@@ -20,7 +20,8 @@ export default function Voting({ room, myPlayerId, onVote }) {
 
       <div className="vote-grid">
         {others.map((p) => (
-          <div
+          <button
+            type="button"
             key={p.id}
             className={`vote-card ${selected === p.id ? "selected" : ""}`}
             onClick={() => castVote(p.id)}
@@ -29,7 +30,7 @@ export default function Voting({ room, myPlayerId, onVote }) {
               {initials(p.name)}
             </div>
             <span className="name">{p.name}</span>
-          </div>
+          </button>
         ))}
       </div>
 

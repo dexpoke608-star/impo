@@ -74,13 +74,14 @@ export default function Lobby({ room, isHost, myPlayerId, onUpdateCategory, onSt
         {isHost ? (
           <div className="category-grid" style={{ marginTop: 10 }}>
             {CATEGORIES.map((c) => (
-              <div
+              <button
+                type="button"
                 key={c.id}
                 className={`category-chip ${room.category === c.id ? "selected" : ""}`}
                 onClick={() => onUpdateCategory(c.id)}
               >
                 {c.label}
-              </div>
+              </button>
             ))}
           </div>
         ) : (
