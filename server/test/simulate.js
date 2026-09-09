@@ -95,18 +95,18 @@ server.listen(0, async () => {
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   clients[0].emit("createRoom", { name: names[0] });
-  await wait(100);
+  await wait(300);
   const roomCode = mine.Alice.roomCode;
   assert(roomCode.length === 4, "room created with a 4-char code");
 
   for (let i = 1; i < clients.length; i++) {
     clients[i].emit("joinRoom", { roomCode, name: names[i] });
   }
-  await wait(150);
+  await wait(300);
   assert(state.Alice.players.length === 5, "all 5 players joined the room");
 
   clients[0].emit("startGame");
-  await wait(150);
+  await wait(300);
   assert(state.Alice.phase === "reveal", "phase moved to reveal");
 
   const imposterName = names.find((n) => mine[n].assignment.isImposter);
@@ -116,11 +116,11 @@ server.listen(0, async () => {
   civilianNames.forEach((n) => assert(typeof mine[n].assignment.word === "string", `${n} got a word`));
 
   clients.forEach((c) => c.emit("ackReveal"));
-  await wait(150);
+  await wait(300);
   assert(state.Alice.phase === "discussion", "phase moved to discussion after all acked");
 
   clients[0].emit("beginVoting");
-  await wait(150);
+  await wait(300);
   assert(state.Alice.phase === "voting", "phase moved to voting");
 
   // Everyone wrongly votes for the first civilian (a deliberate wrong catch).
@@ -128,7 +128,7 @@ server.listen(0, async () => {
   const accusedIdx = names.indexOf(wronglyAccused);
   const accusedId = mine[wronglyAccused].playerId;
   clients.forEach((c) => c.emit("castVote", { votedForId: accusedId }));
-  await wait(200);
+  await wait(400);
 
   assert(state.Alice.phase === "results", "phase moved to results after all voted");
   const result = state.Alice.round.result;

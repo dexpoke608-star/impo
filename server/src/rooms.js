@@ -41,6 +41,24 @@ class Room {
     return this.order.filter((id) => this.players.has(id));
   }
 
+  /** Marks a player disconnected without dropping them from the round
+   * (their score and vote/reveal state must survive a refresh). If they
+   * were the host, promotes the next connected player so host-only
+   * actions (skip discussion, next round, back to lobby) never get
+   * stranded because one phone lost signal. */
+  markDisconnected(id) {
+    const player = this.players.get(id);
+    if (!player) return;
+    player.connected = false;
+    if (this.hostId === id) {
+      const nextHost = this.activePlayerIds().find(
+        (pid) => pid !== id && this.players.get(pid)?.connected
+      );
+      if (nextHost) this.hostId = nextHost;
+    }
+    this.touch();
+  }
+
   startRound() {
     const ids = this.activePlayerIds();
     const roundNumber = this.round ? this.round.number + 1 : 1;

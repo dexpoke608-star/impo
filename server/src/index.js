@@ -198,7 +198,7 @@ io.on("connection", (socket) => {
       if (room.players.size === 0) store.delete(room.code);
       else broadcast(room);
     } else {
-      player.connected = false;
+      room.markDisconnected(player.id);
       broadcast(room);
     }
   });

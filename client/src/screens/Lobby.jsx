@@ -54,8 +54,9 @@ export default function Lobby({ room, isHost, myPlayerId, onUpdateCategory, onSt
               <div className="avatar" style={{ background: avatarColor(p.id) }}>
                 {initials(p.name)}
               </div>
-              <span className="name">
+              <span className={`name ${p.connected ? "" : "dim"}`}>
                 {p.name} {p.id === myPlayerId && <span style={{ color: "var(--text-dim)" }}>(you)</span>}
+                {!p.connected && <span style={{ color: "var(--text-dim)" }}> (offline)</span>}
               </span>
               {p.id === room.hostId && <span className="host-tag">HOST</span>}
             </div>
