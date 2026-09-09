@@ -148,10 +148,7 @@ button {
 .brand h1 {
   font-size: 34px;
   margin: 4px 0 2px;
-  background: linear-gradient(90deg, var(--primary-2), var(--danger-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--primary-2);
 }
 
 .brand p {
