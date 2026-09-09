@@ -64,6 +64,13 @@ export default function App() {
     const onError = ({ message }) => {
       setError(message);
       setTimeout(() => setError(null), 3500);
+      // A rejoin that fails (room gone, or this player no longer in it) means
+      // the saved session is stale — clear it so the next load shows a clean
+      // Home screen instead of retrying a dead room forever.
+      if (message === "Couldn't reconnect you to that room.") {
+        storeIdentity(null);
+        setIdentity(null);
+      }
     };
 
     socket.on("connect", onConnect);
@@ -94,6 +101,13 @@ export default function App() {
   const handleVote = (votedForId) => socket.emit("castVote", { votedForId });
   const handlePlayAgain = () => socket.emit("nextRound");
   const handleBackToLobby = () => socket.emit("backToLobby");
+  const handleLeaveRoom = () => {
+    socket.emit("leaveRoom");
+    storeIdentity(null);
+    setIdentity(null);
+    setRoomState(null);
+    setAssignment(null);
+  };
 
   const isHost = !!(identity && roomState && roomState.hostId === identity.playerId);
 
@@ -110,6 +124,7 @@ export default function App() {
             myPlayerId={identity.playerId}
             onUpdateCategory={handleUpdateCategory}
             onStart={handleStart}
+            onLeave={handleLeaveRoom}
           />
         );
         break;
@@ -130,6 +145,7 @@ export default function App() {
             isHost={isHost}
             onPlayAgain={handlePlayAgain}
             onBackToLobby={handleBackToLobby}
+            onLeave={handleLeaveRoom}
           />
         );
         break;

@@ -12,7 +12,7 @@ const CATEGORIES = [
   { id: "professions", label: "🩺 Professions" },
 ];
 
-export default function Lobby({ room, isHost, myPlayerId, onUpdateCategory, onStart }) {
+export default function Lobby({ room, isHost, myPlayerId, onUpdateCategory, onStart, onLeave }) {
   const [copied, setCopied] = useState(false);
   const shareUrl = `${window.location.origin}/?room=${room.code}`;
 
@@ -97,6 +97,12 @@ export default function Lobby({ room, isHost, myPlayerId, onUpdateCategory, onSt
       ) : (
         <p className="waiting-note">Waiting for the host to start the game…</p>
       )}
+
+      <div style={{ textAlign: "center" }}>
+        <button className="link-btn" onClick={onLeave}>
+          Leave room
+        </button>
+      </div>
     </div>
   );
 }

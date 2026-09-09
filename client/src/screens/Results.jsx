@@ -7,7 +7,7 @@ const OUTCOME_COPY = {
   tie: { emoji: "🤷", title: "No agreement — the Imposter slips away!" },
 };
 
-export default function Results({ room, myPlayerId, isHost, onPlayAgain, onBackToLobby }) {
+export default function Results({ room, myPlayerId, isHost, onPlayAgain, onBackToLobby, onLeave }) {
   const { result } = room.round;
   const playerById = Object.fromEntries(room.players.map((p) => [p.id, p]));
   const imposter = playerById[result.imposterId];
@@ -85,6 +85,12 @@ export default function Results({ room, myPlayerId, isHost, onPlayAgain, onBackT
       ) : (
         <p className="waiting-note">Waiting for the host to start the next round…</p>
       )}
+
+      <div style={{ textAlign: "center" }}>
+        <button className="link-btn" onClick={onLeave}>
+          Leave room
+        </button>
+      </div>
     </div>
   );
 }
