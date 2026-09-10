@@ -73,7 +73,6 @@ io.on("connection", (socket) => {
 
     const room = store.get(roomCode);
     if (!room) return fail(socket, "That room code doesn't exist.");
-    if (room.phase !== "lobby") return fail(socket, "This game has already started.");
     if (room.players.size >= MAX_PLAYERS) return fail(socket, "This room is full.");
 
     const playerId = randomUUID();
@@ -84,6 +83,11 @@ io.on("connection", (socket) => {
     socket.join(room.code);
 
     socket.emit("joined", { roomCode: room.code, playerId });
+    // Joining mid-round: they're a spectator for this round (never sees the
+    // word), so send that state right away instead of leaving them blank.
+    if (room.phase !== "lobby") {
+      socket.emit("yourAssignment", room.assignmentFor(playerId));
+    }
     broadcast(room);
   });
 
@@ -116,7 +120,7 @@ io.on("connection", (socket) => {
     broadcast(room);
   });
 
-  socket.on("startGame", () => {
+  socket.on("startGame", async () => {
     const room = store.get(socket.data.roomCode);
     if (!room) return fail(socket, "Room not found.");
     if (room.hostId !== socket.data.playerId) return fail(socket, "Only the host can start the game.");
@@ -124,7 +128,7 @@ io.on("connection", (socket) => {
     if (room.activePlayerIds().length < MIN_PLAYERS) {
       return fail(socket, `You need at least ${MIN_PLAYERS} players to start.`);
     }
-    room.startRound();
+    await room.startRound();
     broadcast(room);
     sendAssignments(room);
   });
@@ -155,14 +159,14 @@ io.on("connection", (socket) => {
     broadcast(room);
   });
 
-  socket.on("nextRound", () => {
+  socket.on("nextRound", async () => {
     const room = store.get(socket.data.roomCode);
     if (!room || room.hostId !== socket.data.playerId) return;
     if (room.phase !== "results") return;
     if (room.activePlayerIds().length < MIN_PLAYERS) {
       return fail(socket, `You need at least ${MIN_PLAYERS} players to start.`);
     }
-    room.startRound();
+    await room.startRound();
     broadcast(room);
     sendAssignments(room);
   });

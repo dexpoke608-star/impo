@@ -10,6 +10,8 @@ const CATEGORIES = [
   { id: "places", label: "🗺️ Places" },
   { id: "objects", label: "🎒 Objects" },
   { id: "professions", label: "🩺 Professions" },
+  { id: "celebrities", label: "🌟 Celebrities" },
+  { id: "after_dark", label: "🥂 After Dark (18+)" },
 ];
 
 export default function Lobby({ room, isHost, myPlayerId, onUpdateCategory, onStart, onLeave }) {

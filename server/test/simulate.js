@@ -48,10 +48,10 @@ io.on("connection", (socket) => {
     socket.emit("joined", { roomCode: room.code, playerId });
     broadcast(room);
   });
-  socket.on("startGame", () => {
+  socket.on("startGame", async () => {
     const room = store.get(socket.data.roomCode);
     room.category = "food";
-    room.startRound();
+    await room.startRound();
     broadcast(room);
     sendAssignments(room);
   });
@@ -106,7 +106,7 @@ server.listen(0, async () => {
   assert(state.Alice.players.length === 5, "all 5 players joined the room");
 
   clients[0].emit("startGame");
-  await wait(300);
+  await wait(6000); // startRound now does a best-effort image lookup (up to a 5s timeout)
   assert(state.Alice.phase === "reveal", "phase moved to reveal");
 
   const imposterName = names.find((n) => mine[n].assignment.isImposter);
@@ -136,7 +136,7 @@ server.listen(0, async () => {
   assert(result.accusedId === accusedId, "accused matches who was voted for");
 
   const finalScores = Object.fromEntries(state.Alice.players.map((p) => [p.name, p.score]));
-  assert(finalScores[wronglyAccused] === 1, `${wronglyAccused} (wrongly accused) scored 1`);
+  assert(finalScores[wronglyAccused] === -1, `${wronglyAccused} (wrongly accused) scored -1`);
   assert(finalScores[imposterName] === 1, `${imposterName} (imposter, escaped) scored 1`);
   names
     .filter((n) => n !== wronglyAccused && n !== imposterName)

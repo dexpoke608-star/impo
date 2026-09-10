@@ -1,4 +1,5 @@
 const { pickWord } = require("./wordBank");
+const { lookupImage } = require("./imageLookup");
 
 const ROOM_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I
 
@@ -22,16 +23,22 @@ function shuffle(arr) {
   return a;
 }
 
-/** Builds a new round: picks a word/category, an imposter, and a shuffled
- * reveal order. `playerIds` must have at least 3 entries. */
-function buildRound(playerIds, category, usedWords, roundNumber) {
-  const { word, category: chosenCategory } = pickWord(category, usedWords);
+/** Builds a new round: picks a word/category, an imposter, a shuffled
+ * reveal order, and a best-effort image for the word. `playerIds` must have
+ * at least 3 entries. `playerIds` also becomes the fixed set of round
+ * participants — anyone who joins the room after this resolves spectates
+ * until the next round instead of being folded into an in-progress one. */
+async function buildRound(playerIds, category, usedWords, roundNumber) {
+  const { word, wiki, category: chosenCategory } = pickWord(category, usedWords);
   const imposterId = playerIds[Math.floor(Math.random() * playerIds.length)];
+  const imageUrl = await lookupImage(wiki || word);
   return {
     number: roundNumber,
     word,
+    imageUrl,
     category: chosenCategory,
     imposterId,
+    participantIds: new Set(playerIds),
     revealOrder: shuffle(playerIds),
     ackedReveal: new Set(),
     discussionEndsAt: null,
@@ -66,10 +73,10 @@ function tallyVotes(votes) {
 /**
  * Applies the house scoring rule:
  *  - Correct catch (accused === imposter): every non-imposter player +1,
- *    imposter +0.
+ *    imposter -2 (caught red-handed).
  *  - Wrong catch (accused is an innocent player): the wrongly-accused
- *    player +1 (they successfully threw suspicion off the imposter) AND
- *    the imposter +1 (they escaped detection). Everyone else +0.
+ *    player -1 (penalized for getting caught out) AND the imposter +1
+ *    (they escaped detection). Everyone else +0.
  *  - Tie / no clear accusation: the imposter +1 (escaped by default),
  *    nobody else scores.
  * Returns { pointsAwarded: Map<playerId, number>, outcome }.
@@ -79,15 +86,16 @@ function scoreRound({ playerIds, imposterId, accusedId, tie }) {
   let outcome;
 
   if (tie) {
-    pointsAwarded.set(imposterId, 1);
+    pointsAwarded.set(imposterId, (pointsAwarded.get(imposterId) || 0) + 1);
     outcome = "tie";
   } else if (accusedId === imposterId) {
     for (const id of playerIds) {
-      if (id !== imposterId) pointsAwarded.set(id, 1);
+      if (id !== imposterId) pointsAwarded.set(id, (pointsAwarded.get(id) || 0) + 1);
     }
+    pointsAwarded.set(imposterId, (pointsAwarded.get(imposterId) || 0) - 2);
     outcome = "caught";
   } else {
-    pointsAwarded.set(accusedId, 1);
+    pointsAwarded.set(accusedId, (pointsAwarded.get(accusedId) || 0) - 1);
     pointsAwarded.set(imposterId, (pointsAwarded.get(imposterId) || 0) + 1);
     outcome = "wrong";
   }

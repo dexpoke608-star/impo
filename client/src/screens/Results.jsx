@@ -63,8 +63,8 @@ export default function Results({ room, myPlayerId, isHost, onPlayAgain, onBackT
                 <span className={`name ${p.id === myPlayerId ? "" : "dim"}`}>
                   {p.score === leaderScore && leaderScore > 0 && <span className="crown">👑</span>} {p.name}
                 </span>
-                <span className={`points-badge ${gained === 0 ? "zero" : ""}`}>
-                  {gained > 0 ? `+${gained}` : "+0"}
+                <span className={`points-badge ${gained === 0 ? "zero" : gained < 0 ? "negative" : ""}`}>
+                  {gained > 0 ? `+${gained}` : gained}
                 </span>
                 <span className="score-pill">{p.score}</span>
               </div>

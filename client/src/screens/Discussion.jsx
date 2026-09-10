@@ -4,7 +4,7 @@ const TOTAL_MS = 3 * 60 * 1000;
 const RADIUS = 60;
 const CIRC = 2 * Math.PI * RADIUS;
 
-export default function Discussion({ room, isHost, onBeginVoting }) {
+export default function Discussion({ room, isHost, assignment, onBeginVoting }) {
   const [remainingMs, setRemainingMs] = useState(() =>
     Math.max(0, (room.round.discussionEndsAt || Date.now()) - Date.now())
   );
@@ -47,6 +47,10 @@ export default function Discussion({ room, isHost, onBeginVoting }) {
         </div>
         <p className="waiting-note">Category: {room.category}</p>
       </div>
+
+      {assignment?.spectating && (
+        <p className="waiting-note">👀 You joined mid-round — you're spectating until the next one.</p>
+      )}
 
       {isHost && (
         <button className="btn btn-danger btn-block" onClick={onBeginVoting}>

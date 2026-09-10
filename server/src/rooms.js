@@ -41,6 +41,14 @@ class Room {
     return this.order.filter((id) => this.players.has(id));
   }
 
+  /** Players who were present when the current round started, and are
+   * still in the room. Anyone who joins mid-round is excluded here — they
+   * spectate (no word, no vote, no score) until the next round starts. */
+  roundParticipantIds() {
+    if (!this.round) return [];
+    return this.activePlayerIds().filter((id) => this.round.participantIds.has(id));
+  }
+
   /** Marks a player disconnected without dropping them from the round
    * (their score and vote/reveal state must survive a refresh). If they
    * were the host, promotes the next connected player so host-only
@@ -59,18 +67,18 @@ class Room {
     this.touch();
   }
 
-  startRound() {
+  async startRound() {
     const ids = this.activePlayerIds();
     const roundNumber = this.round ? this.round.number + 1 : 1;
-    this.round = buildRound(ids, this.category, this.usedWords, roundNumber);
+    this.round = await buildRound(ids, this.category, this.usedWords, roundNumber);
     this.phase = "reveal";
     this.touch();
   }
 
   ackReveal(playerId) {
-    if (!this.round) return;
+    if (!this.round || !this.round.participantIds.has(playerId)) return;
     this.round.ackedReveal.add(playerId);
-    const allAcked = this.activePlayerIds().every((id) => this.round.ackedReveal.has(id));
+    const allAcked = this.roundParticipantIds().every((id) => this.round.ackedReveal.has(id));
     if (allAcked) {
       this.phase = "discussion";
       this.round.discussionEndsAt = Date.now() + DISCUSSION_MS;
@@ -89,14 +97,15 @@ class Room {
 
   castVote(voterId, votedForId) {
     if (!this.round) return;
+    if (!this.round.participantIds.has(voterId) || !this.round.participantIds.has(votedForId)) return;
     this.round.votes.set(voterId, votedForId);
-    const allVoted = this.activePlayerIds().every((id) => this.round.votes.has(id));
+    const allVoted = this.roundParticipantIds().every((id) => this.round.votes.has(id));
     if (allVoted) this.finishVoting();
     this.touch();
   }
 
   finishVoting() {
-    const ids = this.activePlayerIds();
+    const ids = this.roundParticipantIds();
     const { counts, accusedId, tie } = tallyVotes(this.round.votes);
     const { pointsAwarded, outcome } = scoreRound({
       playerIds: ids,
@@ -142,9 +151,11 @@ class Room {
         ? {
             number: this.round.number,
             ackedCount: this.round.ackedReveal.size,
-            totalCount: this.activePlayerIds().length,
+            totalCount: this.roundParticipantIds().length,
+            participantIds: [...this.round.participantIds],
             discussionEndsAt: this.round.discussionEndsAt,
             votedCount: this.round.votes.size,
+            liveVotes: Object.fromEntries(this.round.votes),
             result: this.round.result,
           }
         : null,
@@ -152,13 +163,19 @@ class Room {
   }
 
   /** Private payload for exactly one player: their word (or imposter
-   * status) for the current round. */
+   * status) for the current round. Anyone who joined after the round
+   * started isn't a participant — they get a spectating flag instead,
+   * never the word, so a late join can't leak the secret. */
   assignmentFor(playerId) {
     if (!this.round) return null;
+    if (!this.round.participantIds.has(playerId)) {
+      return { spectating: true, category: this.round.category };
+    }
     const isImposter = this.round.imposterId === playerId;
     return {
       isImposter,
       word: isImposter ? null : this.round.word,
+      imageUrl: isImposter ? null : this.round.imageUrl,
       category: this.round.category,
     };
   }

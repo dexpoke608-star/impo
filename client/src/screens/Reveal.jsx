@@ -13,6 +13,20 @@ export default function Reveal({ room, assignment, onAck }) {
     );
   }
 
+  if (assignment.spectating) {
+    return (
+      <div className="container">
+        <div className="card" style={{ textAlign: "center" }}>
+          <div className="pulse-icon">👀</div>
+          <h2 style={{ margin: "10px 0 4px" }}>You're spectating this round</h2>
+          <p className="waiting-note">
+            You joined mid-round, so you'll jump in from the next one. Watch the discussion and votes along the way!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const isImposter = assignment.isImposter;
 
   const handleAck = () => {
@@ -63,6 +77,9 @@ export default function Reveal({ room, assignment, onAck }) {
           ) : (
             <>
               <div className="category-tag">{room.category}</div>
+              {assignment.imageUrl && (
+                <img src={assignment.imageUrl} alt="" className="word-image" />
+              )}
               <div className="secret-word">{assignment.word}</div>
               <p style={{ color: "var(--text-dim)", fontSize: 13 }}>
                 Remember it, but don't say it out loud!

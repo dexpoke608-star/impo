@@ -132,10 +132,14 @@ export default function App() {
         screen = <Reveal room={roomState} assignment={assignment} onAck={handleAck} />;
         break;
       case "discussion":
-        screen = <Discussion room={roomState} isHost={isHost} onBeginVoting={handleBeginVoting} />;
+        screen = (
+          <Discussion room={roomState} isHost={isHost} assignment={assignment} onBeginVoting={handleBeginVoting} />
+        );
         break;
       case "voting":
-        screen = <Voting room={roomState} myPlayerId={identity.playerId} onVote={handleVote} />;
+        screen = (
+          <Voting room={roomState} myPlayerId={identity.playerId} assignment={assignment} onVote={handleVote} />
+        );
         break;
       case "results":
         screen = (
