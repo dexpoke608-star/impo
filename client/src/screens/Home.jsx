@@ -57,7 +57,6 @@ export default function Home({ initialRoomCode, onCreate, onJoin }) {
             id="player-name-input"
             name="playerName"
             className="text-input"
-            placeholder="e.g. Nagendra"
             maxLength={24}
             value={name}
             onChange={(e) => setName(e.target.value)}
